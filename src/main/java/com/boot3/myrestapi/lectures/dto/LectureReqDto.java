@@ -18,7 +18,7 @@ public class LectureReqDto {
     @NotBlank(message = "Name 은 필수 입력 항목입니다.")
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "description 은 NULL일수 없습니다.")
     private String description;
 
     @NotNull

@@ -30,6 +30,10 @@ public class LectureController {
 
     @PostMapping
     public ResponseEntity<?> createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
+        // 입력 항목 검증
+        if(errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
         //ReqDto => Entity 매핑
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
         Lecture addLecture = this.lectureRepository.save(lecture);
@@ -38,11 +42,8 @@ public class LectureController {
         WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(addLecture.getId());
         URI createUri = selfLinkBuilder.toUri();
 
-        if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().build();
-        }
 
-        return ResponseEntity.created(createUri).body(addLecture);
+            return ResponseEntity.created(createUri).body(addLecture);
 
 //        DB환경 없을경우 테스트 목업 데이터
 //        lecture.setId(10);
