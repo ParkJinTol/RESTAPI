@@ -1,13 +1,15 @@
 package com.boot3.myrestapi.lectures;
 
 import com.boot3.myrestapi.lectures.dto.LectureReqDto;
+import com.boot3.myrestapi.lectures.dto.LectureResDto;
+import com.boot3.myrestapi.lectures.dto.LectureResource;
 import com.boot3.myrestapi.lectures.validator.LectureValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,14 +52,24 @@ public class LectureController {
         // free, offline 정보 업데이트
         lecture.update();
 
+
         Lecture addLecture = this.lectureRepository.save(lecture);
 
+        LectureResDto lectureResDto = modelMapper.map(addLecture, LectureResDto.class);
 
         WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(addLecture.getId());
         URI createUri = selfLinkBuilder.toUri();
 
+        LectureResource lectureResource = new LectureResource(lectureResDto);
+        //relation 이름이 query-lectures 인 link
+        lectureResource.add(linkTo(LectureController.class).withRel("query-lectures"));
+        // self link
+        lectureResource.add(selfLinkBuilder.withSelfRel());
+        //relation 이름이 update-lecture 인 link
+        lectureResource.add(selfLinkBuilder.withRel("update-lecture"));
 
-            return ResponseEntity.created(createUri).body(addLecture);
+
+            return ResponseEntity.created(createUri).body(lectureResource);
 
 //        DB환경 없을경우 테스트 목업 데이터
 //        lecture.setId(10);
