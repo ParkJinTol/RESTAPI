@@ -33,19 +33,23 @@ public class LectureController {
     @PostMapping
     public ResponseEntity<?> createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
         // 입력 항목 검증
-        if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
-        }
+//        if(errors.hasErrors()) {
+//            return badRequest(errors);
+//        }
 
         // Biz로직의 입력 항목 체크
         this.lectureValidator.validate(lectureReqDto, errors);
 
         if(errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         //ReqDto => Entity 매핑
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
+
+        // free, offline 정보 업데이트
+        lecture.update();
+
         Lecture addLecture = this.lectureRepository.save(lecture);
 
 
@@ -60,6 +64,10 @@ public class LectureController {
 //        WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(lecture.getId());
 //        URI createUri = selfLinkBuilder.toUri();
 //        return ResponseEntity.created(createUri).body(lecture);
+    }
+
+    private static ResponseEntity<Errors> badRequest(Errors errors) {
+        return ResponseEntity.badRequest().body(errors);
     }
 
 }
