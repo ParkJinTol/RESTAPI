@@ -1,12 +1,14 @@
 package com.boot3.myrestapi.lectures;
 
 import com.boot3.myrestapi.lectures.dto.LectureReqDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +29,7 @@ public class LectureController {
 //    }
 
     @PostMapping
-    public ResponseEntity<?> createLecture(@RequestBody LectureReqDto lectureReqDto) {
+    public ResponseEntity<?> createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
         //ReqDto => Entity 매핑
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
         Lecture addLecture = this.lectureRepository.save(lecture);
@@ -35,6 +37,11 @@ public class LectureController {
 
         WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(addLecture.getId());
         URI createUri = selfLinkBuilder.toUri();
+
+        if(errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.created(createUri).body(addLecture);
 
 //        DB환경 없을경우 테스트 목업 데이터
