@@ -63,8 +63,6 @@ public class LectureController {
         LectureResource lectureResource = new LectureResource(lectureResDto);
         //relation 이름이 query-lectures 인 link
         lectureResource.add(linkTo(LectureController.class).withRel("query-lectures"));
-        // self link
-        lectureResource.add(selfLinkBuilder.withSelfRel());
         //relation 이름이 update-lecture 인 link
         lectureResource.add(selfLinkBuilder.withRel("update-lecture"));
 
