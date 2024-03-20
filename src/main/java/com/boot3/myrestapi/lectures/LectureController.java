@@ -1,6 +1,7 @@
 package com.boot3.myrestapi.lectures;
 
 import com.boot3.myrestapi.lectures.dto.LectureReqDto;
+import com.boot3.myrestapi.lectures.validator.LectureValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,7 @@ import java.net.URI;
 public class LectureController {
     private final LectureRepository lectureRepository;
     private final ModelMapper modelMapper;
+    private final LectureValidator lectureValidator;
 
 //    @Autowired 쓰는대신 아래처럼 직접 초기화 하면 좋은점은 Test할때 유용
 //    public LectureController(LectureRepository lectureRepository) {
@@ -34,6 +36,14 @@ public class LectureController {
         if(errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
+
+        // Biz로직의 입력 항목 체크
+        this.lectureValidator.validate(lectureReqDto, errors);
+
+        if(errors.hasErrors()) {
+            return ResponseEntity.badRequest().body(errors);
+        }
+
         //ReqDto => Entity 매핑
         Lecture lecture = modelMapper.map(lectureReqDto, Lecture.class);
         Lecture addLecture = this.lectureRepository.save(lecture);
