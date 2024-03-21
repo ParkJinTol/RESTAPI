@@ -11,7 +11,9 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
-// 401
+/*
+    401 인증 실패를 처리하는 클래스
+ */
 @Slf4j
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

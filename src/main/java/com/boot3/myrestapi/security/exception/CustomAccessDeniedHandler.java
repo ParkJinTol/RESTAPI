@@ -11,7 +11,9 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 
-// 403
+/*
+    403 권한없음 에러를 처리하는 클래스
+ */
 @Slf4j
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     @Override
@@ -22,7 +24,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
         // Set response content type to JSON
         response.setContentType("application/json;charset=UTF-8");
-        // Set response code
+        // Set response code 403
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         // Create response content

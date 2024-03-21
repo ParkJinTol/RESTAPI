@@ -68,10 +68,13 @@ public class LectureController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_USER')")
-    public ResponseEntity<?> getLecture(@PathVariable Integer id) {
+    public ResponseEntity<?> getLecture(@PathVariable Integer id, @CurrentUser UserInfo currentUser) {
         Lecture lecture = getExistOrNotLecture(id);
 
         LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
+        //token 정보가 있으면
+        if(currentUser != null)
+            lectureResDto.setEmail(lecture.getUserInfo().getEmail());
         LectureResource lectureResource = new LectureResource(lectureResDto);
         return ResponseEntity.ok(lectureResource);
     }
