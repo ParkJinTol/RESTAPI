@@ -6,22 +6,24 @@ import com.boot3.myrestapi.lectures.LectureStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
 
 @Component
+@Profile("prod")
 public class LectureInsertRunner implements ApplicationRunner {
 	@Autowired
     LectureRepository lectureRepository;
 	
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-
+    lectureRepository.deleteAll();
 //        IntStream.range(0, 15).forEach(index -> generateLecture(index));
 //        위에 람다식을 아래와 같이 쓸수있다
-        IntStream.range(0, 15).forEach(this::generateLecture);
+        IntStream.range(0, 2).forEach(this::generateLecture);
 	}
     private Lecture generateLecture(int index) {
         Lecture lecture = buildLecture(index);

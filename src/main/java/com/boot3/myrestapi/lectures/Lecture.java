@@ -1,5 +1,6 @@
 package com.boot3.myrestapi.lectures;
 
+import com.boot3.myrestapi.security.userinfo.UserInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +36,9 @@ public class Lecture {
     private boolean offline;
 
     private boolean free;
+
+    @ManyToOne
+    private UserInfo userInfo;
 
     @Enumerated(EnumType.STRING)
     private LectureStatus lectureStatus = LectureStatus.DRAFT;

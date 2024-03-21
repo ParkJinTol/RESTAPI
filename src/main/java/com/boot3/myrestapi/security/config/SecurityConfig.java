@@ -1,7 +1,12 @@
 package com.boot3.myrestapi.security.config;
 
+import com.boot3.myrestapi.security.userinfo.UserInfoUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/users/welcome").permitAll()
+                    auth.requestMatchers("/users/welcome","/users/new").permitAll()
                             .requestMatchers("/api/lectures/**").authenticated();
                 })
                 .formLogin(withDefaults())
@@ -35,20 +40,45 @@ public class SecurityConfig {
     }
 
     @Bean
-//authentication
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails admin = User.withUsername("adminboot")
-                .password(encoder.encode("pwd1"))
-                .roles("ADMIN")
-                .build();
-        UserDetails user = User.withUsername("userboot")
-                .password(encoder.encode("pwd2"))
-                .roles("USER")
-                .build();
-        UserDetails adminpjs = User.withUsername("pjsjja458")
-                .password(encoder.encode("pjs247121!"))
-                .roles("ADMIN")
-                .build();
-        return new InMemoryUserDetailsManager(admin, user, adminpjs);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
     }
+
+////authentication
+//    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+//        UserDetails admin = User.withUsername("adminboot")
+//                .password(encoder.encode("pwd1"))
+//                .roles("ADMIN")
+//                .build();
+//        UserDetails user = User.withUsername("userboot")
+//                .password(encoder.encode("pwd2"))
+//                .roles("USER")
+//                .build();
+//        UserDetails adminpjs = User.withUsername("pjsjja458")
+//                .password(encoder.encode("pjs247121!"))
+//                .roles("ADMIN")
+//                .build();
+//        return new InMemoryUserDetailsManager(admin, user, adminpjs);
+//    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserInfoUserDetailsService();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider(){
+        DaoAuthenticationProvider authenticationProvider
+                =
+                new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService
+                (userDetailsService());
+        authenticationProvider.setPasswordEncoder
+                (passwordEncoder());
+        return authenticationProvider
+                ;
+    }
+
+
 }
