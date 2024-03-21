@@ -2,8 +2,6 @@ package com.boot3.myrestapi.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecureDigestAlgorithm;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -11,12 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 import java.util.function.Function;
 
 @Component
@@ -75,7 +69,7 @@ public class JwtService {
         // ACCESS_EXPIRE 3600초 => 60분
         Date exprireDate = Date.from(Instant.now().plusSeconds(ACCESS_EXPIRE));
 
-        return Jwts.builder()
+        return Jwts.builder() //JwtBuilder
                 .signWith(KEY, ALGORITHM)
                 .subject(userName)
                 .issuedAt(new Date())

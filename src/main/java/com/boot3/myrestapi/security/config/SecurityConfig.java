@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -32,7 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/users/welcome","/users/new").permitAll()
+                    auth.requestMatchers("/users/**").permitAll()
                             .requestMatchers("/api/lectures/**").authenticated();
                 })
                 .formLogin(withDefaults())
@@ -40,12 +41,25 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
-            throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-////authentication
+    @Bean
+    public UserDetailsService userDetailsService() {
+        return new UserInfoUserDetailsService();
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+        authenticationProvider.setUserDetailsService(userDetailsService());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        return authenticationProvider;
+    }
+
+//    @Bean
+//    //authentication
 //    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
 //        UserDetails admin = User.withUsername("adminboot")
 //                .password(encoder.encode("pwd1"))
@@ -55,30 +69,6 @@ public class SecurityConfig {
 //                .password(encoder.encode("pwd2"))
 //                .roles("USER")
 //                .build();
-//        UserDetails adminpjs = User.withUsername("pjsjja458")
-//                .password(encoder.encode("pjs247121!"))
-//                .roles("ADMIN")
-//                .build();
-//        return new InMemoryUserDetailsManager(admin, user, adminpjs);
+//        return new InMemoryUserDetailsManager(admin, user);
 //    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserInfoUserDetailsService();
-    }
-
-    @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authenticationProvider
-                =
-                new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService
-                (userDetailsService());
-        authenticationProvider.setPasswordEncoder
-                (passwordEncoder());
-        return authenticationProvider
-                ;
-    }
-
-
 }
