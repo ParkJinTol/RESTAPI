@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,7 +44,7 @@ public class LectureController {
         // Biz로직의 입력 항목 체크
         this.lectureValidator.validate(lectureReqDto, errors);
 
-        if(errors.hasErrors()) {
+        if (errors.hasErrors()) {
             return badRequest(errors);
         }
 
@@ -66,8 +68,7 @@ public class LectureController {
         //relation 이름이 update-lecture 인 link
         lectureResource.add(selfLinkBuilder.withRel("update-lecture"));
 
-
-            return ResponseEntity.created(createUri).body(lectureResource);
+        return ResponseEntity.created(createUri).body(lectureResource);
 
 //        DB환경 없을경우 테스트 목업 데이터
 //        lecture.setId(10);
