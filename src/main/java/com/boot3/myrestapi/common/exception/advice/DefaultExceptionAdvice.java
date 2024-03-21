@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -16,7 +18,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class DefaultExceptionAdvice {
     private final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionAdvice.class);
-
 
     @ExceptionHandler(BusinessException.class)
     protected ResponseEntity<Object> handleException(BusinessException e) {
@@ -44,6 +45,18 @@ public class DefaultExceptionAdvice {
         result.put("httpStatus", HttpStatus.BAD_REQUEST.value());
 
         return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+    }
+
+    //403
+    @ExceptionHandler(value = AccessDeniedException.class)
+    public void accessDeniedExceptionHandler(Exception e) {
+        throw new AccessDeniedException(e.getMessage());
+    }
+
+    //401
+    @ExceptionHandler(value = BadCredentialsException.class)
+    public void badCredentialExceptionHandler(BadCredentialsException e){
+        throw new BadCredentialsException(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

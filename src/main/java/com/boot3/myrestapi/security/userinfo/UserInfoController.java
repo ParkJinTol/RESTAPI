@@ -17,10 +17,12 @@ public class UserInfoController {
     private UserInfoRepository repository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtService jwtService;
+
     @PostMapping("/login")
     public String authenticateAndGetToken(@RequestBody AuthRequest authRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -34,16 +36,20 @@ public class UserInfoController {
             throw new UsernameNotFoundException("invalid user request !");
         }
     }
-@GetMapping("/welcome")
-public String welcome() {
-return "Welcome this endpoint is not secure";
-}
+
+    @GetMapping("/welcome")
+    public String welcome() {
+        return "Welcome this endpoint is not secure";
+    }
 
     @PostMapping("/new")
-    public String addNewUser(@RequestBody UserInfo userInfo){
+    public String addNewUser(@RequestBody UserInfo userInfo) {
         userInfo.setPassword(
                 passwordEncoder.encode(userInfo.getPassword()));
         UserInfo savedUserInfo = repository.save(userInfo);
         return savedUserInfo.getName() + " user added!!";
     }
+
+
+
 }
