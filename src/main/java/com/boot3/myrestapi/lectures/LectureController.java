@@ -39,7 +39,7 @@ public class LectureController {
 //    public LectureController(LectureRepository lectureRepository) {
 //        this.lectureRepository = lectureRepository;
 //    }
-    @GetMapping
+    @GetMapping // 전체 조회
     public ResponseEntity<?> queryLectures(Pageable pageable, PagedResourcesAssembler<LectureResDto> assembler) {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         // Page<Lecture> => Page<LectureResDto>
@@ -54,19 +54,16 @@ public class LectureController {
         return ResponseEntity.ok(pagedModel);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") // 개별 조회
     public ResponseEntity<?> getLecture(@PathVariable Integer id) {
-        Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
-        String errMsg = String.format("id = %d Lecture Not Found", id);
-        Lecture lecture = optionalLecture
-                .orElseThrow(() -> new BusinessException(errMsg, HttpStatus.NOT_FOUND));
+       Lecture lecture = getExitLecture(id);
 
         LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
         LectureResource lectureResource = new LectureResource(lectureResDto);
         return ResponseEntity.ok(lectureResource);
     }
 
-    @PostMapping
+    @PostMapping // 데이터 추가
     public ResponseEntity<?> createLecture(@RequestBody @Valid LectureReqDto lectureReqDto, Errors errors) {
         // 입력 항목 검증
 //        if(errors.hasErrors()) {
@@ -107,6 +104,37 @@ public class LectureController {
 //        WebMvcLinkBuilder selfLinkBuilder = WebMvcLinkBuilder.linkTo(LectureController.class).slash(lecture.getId());
 //        URI createUri = selfLinkBuilder.toUri();
 //        return ResponseEntity.created(createUri).body(lecture);
+    }
+    @PutMapping("/{id}") // 데이터 업데이트
+    public ResponseEntity<?> updateLecture(@PathVariable Integer id,
+                                        @RequestBody @Valid LectureReqDto lectureReqDto,
+                                        Errors errors) {
+        Lecture existingLecture = getExitLecture(id);
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+        lectureValidator.validate(lectureReqDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        this.modelMapper.map(lectureReqDto, existingLecture);
+        existingLecture.update();
+
+        Lecture savedLecture = this.lectureRepository.save(existingLecture);
+        LectureResDto lectureResDto = modelMapper.map(savedLecture, LectureResDto.class);
+
+        LectureResource lectureResource = new LectureResource(lectureResDto);
+        return ResponseEntity.ok(lectureResource);
+    }
+
+    private Lecture getExitLecture(Integer id) {
+        Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
+
+        String errMsg = String.format("id = %d Lecture Not Found", id);
+        return optionalLecture
+                .orElseThrow(() -> new BusinessException(errMsg, HttpStatus.NOT_FOUND));
     }
 
     private static ResponseEntity<ErrorsResource> badRequest(Errors errors) {
