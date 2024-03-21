@@ -21,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,7 +40,8 @@ public class LectureController {
 //    public LectureController(LectureRepository lectureRepository) {
 //        this.lectureRepository = lectureRepository;
 //    }
-    @GetMapping // 전체 조회
+    @GetMapping(value = "/all") // 전체 조회
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> queryLectures(Pageable pageable, PagedResourcesAssembler<LectureResDto> assembler) {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         // Page<Lecture> => Page<LectureResDto>
@@ -55,6 +57,7 @@ public class LectureController {
     }
 
     @GetMapping("/{id}") // 개별 조회
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<?> getLecture(@PathVariable Integer id) {
        Lecture lecture = getExitLecture(id);
 
