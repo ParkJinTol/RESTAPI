@@ -1,6 +1,8 @@
 package com.boot3.myrestapi.lectures;
 
 import com.boot3.myrestapi.security.userinfo.UserInfo;
+import com.boot3.myrestapi.security.userinfo.UserInfoSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,6 +40,7 @@ public class Lecture {
     private boolean free;
 
     @ManyToOne
+    @JsonSerialize(using = UserInfoSerializer.class)
     private UserInfo userInfo;
 
     @Enumerated(EnumType.STRING)

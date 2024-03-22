@@ -20,7 +20,8 @@ public class LectureInsertRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        lectureRepository.deleteAll();
+        // 데이터를 삭제
+//        lectureRepository.deleteAll();
         IntStream.range(0, 2).forEach(this::generateLecture);
         //IntStream.range(0, 15).forEach(index -> generateLecture(index));
     }
@@ -30,7 +31,7 @@ public class LectureInsertRunner implements ApplicationRunner {
     }
     private Lecture buildLecture(int index) {
         return Lecture.builder()
-                .name(index + " Lecture ")
+                .name(index + 1 + " Lecture ")
                 .description("Test Lecture")
                 .beginEnrollmentDateTime(LocalDateTime.of(2022, 11, 23, 14, 21))
                 .closeEnrollmentDateTime(LocalDateTime.of(2022, 11, 24, 14, 21))
@@ -39,7 +40,7 @@ public class LectureInsertRunner implements ApplicationRunner {
                 .basePrice(100)
                 .maxPrice(200)
                 .limitOfEnrollment(100)
-                .location(index + " 강의장")
+                .location(index + 1 + " 강의장")
                 .free(false)
                 .offline(true)
                 .lectureStatus(LectureStatus.DRAFT)

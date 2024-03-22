@@ -42,10 +42,15 @@ public class LectureController {
 //    }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<?> updateLecture(@PathVariable Integer id,
                                            @RequestBody @Valid LectureReqDto lectureReqDto,
-                                           Errors errors) {
+                                           Errors errors, @CurrentUser UserInfo currentUser) {
         Lecture existingLecture = getExistOrNotLecture(id);
+        if((existingLecture.getUserInfo() != null) &&
+                (!existingLecture.getUserInfo().equals(currentUser))) {
+            return new ResponseEntity(HttpStatus.UNAUTHORIZED);
+        }
 
         if (errors.hasErrors()) {
             return badRequest(errors);
@@ -72,24 +77,20 @@ public class LectureController {
         Lecture lecture = getExistOrNotLecture(id);
 
         LectureResDto lectureResDto = modelMapper.map(lecture, LectureResDto.class);
-        //token 정보가 있으면
-        if(currentUser != null)
-            lectureResDto.setEmail(lecture.getUserInfo().getEmail());
+
         LectureResource lectureResource = new LectureResource(lectureResDto);
-        return ResponseEntity.ok(lectureResource);
-    }
+        if((lecture.getUserInfo() != null) && (lecture.getUserInfo().equals(currentUser))) {
+            lectureResource.add(linkTo(LectureController.class)
+                    .slash(lecture.getId()).withRel("update-lecture"));
+        }
+            return ResponseEntity.ok(lectureResource);
 
-    private Lecture getExistOrNotLecture(Integer id) {
-        Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
-
-        String errMsg = String.format("Id = %d Lecture Not Found", id);
-        return optionalLecture
-                .orElseThrow(() -> new BusinessException(errMsg, HttpStatus.NOT_FOUND));
     }
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<?> queryLectures(Pageable pageable, PagedResourcesAssembler<LectureResDto> assembler) {
+    public ResponseEntity<?> queryLectures(Pageable pageable, PagedResourcesAssembler<LectureResDto> assembler
+            , @CurrentUser UserInfo currentUser) {
         Page<Lecture> lecturePage = this.lectureRepository.findAll(pageable);
         // Page<Lecture> => Page<LectureResDto>
         Page<LectureResDto> lectureResDtoPage = lecturePage
@@ -143,6 +144,13 @@ public class LectureController {
         return ResponseEntity.created(createUri).body(lectureResource);
     }
 
+    private Lecture getExistOrNotLecture(Integer id) {
+        Optional<Lecture> optionalLecture = this.lectureRepository.findById(id);
+
+        String errMsg = String.format("Id = %d Lecture Not Found", id);
+        return optionalLecture
+                .orElseThrow(() -> new BusinessException(errMsg, HttpStatus.NOT_FOUND));
+    }
     private static ResponseEntity<ErrorsResource> badRequest(Errors errors) {
 
         return ResponseEntity.badRequest().body(new ErrorsResource(errors));
